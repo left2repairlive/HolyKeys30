@@ -1,0 +1,7 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+"D1, D10, D11, D12, D13, D14, D15, D16, D17, D18, D19, D2, D20, D21, D22, D23, D24, D25, D26, D27, D28, D29, D3, D30, D4, D5, D6, D7, D8, D9",Diode_DO-35,30,Diode,
+"H1, H2, H3, H4",MountingHole_2.2mm_M2_DIN965,4,Mounting_Hole,
+J1,PinSocket_1x05_P2.54mm_Vertical,1,Rows 1x5,
+J2,PinSocket_1x06_P2.54mm_Vertical,1,Col 1x6,
+"S1, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S2, S20, S21, S22, S23, S24, S25, S26, S27, S28, S29, S3, S30, S4, S5, S6, S7, S8, S9",SW_Hotswap_Kailh_Choc_V1V2_Reversible,30,Keyswitch,
+"TP1, TP2",TestPoint_Pad_D2.5mm,2,GND,
