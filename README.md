@@ -28,3 +28,5 @@ For the sake of fun I decided to write the firmware myself as a challenge for le
 ## KiCAD libraries
 * [kiswitch library](https://github.com/kiswitch/kiswitch)
 * [ScottoKeebs library](https://github.com/joe-scotto/scottokeebs/tree/main/Extras/ScottoKicad)
+
+*As said above I may have misused the relative paths for these libraries, so it needs fixing*
