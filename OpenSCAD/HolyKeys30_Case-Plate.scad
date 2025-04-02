@@ -20,13 +20,13 @@ mountingHolesTranslations =
     [5, 4, 0]
 ];
 
-keyGrid =
+keyGrid = // [x, y, width, height] in units
 [
-    [0,0], [1,0], [2,0], [3,0], [4,0], [5,0],
-    [0,1], [1,1], [2,1], [3,1], [4,1], [5,1],
-    [0,2], [1,2], [2,2], [3,2], [4,2], [5,2],
-    [0,3], [1,3], [2,3], [3,3], [4,3], [5,3],
-    [0,4], [1,4], [2,4], [3,4], [4,4], [5,4]
+    [0,1,1,1], [1,1,1,1], [2,1,1, 1], [3,1,1,1], [4,1,1,1], [5,1,1,1],
+    [0,2,1,1], [1,2,1,1], [2,2,1, 1], [3,2,1,1], [4,2,1,1], [5,2,1,1],
+    [0,0,1,1], [1,0,1,1], [2,0,1, 1], [3,0,1,1], [4,0,1,1], [5,0,1,1],
+    [0,3,1,1], [1,3,1,1], [2,3,1, 1], [3,3,1,1], [4,3,1,1], [5,3,1,1],
+    [0,4,1,1], [1,4,1,1], [2,4,1, 1], [3,4,0.5,1], [4,4,1,1], [5,4,0.5,1]
 ];
 
 screwDiameter = 2.2;
@@ -113,9 +113,9 @@ module plate()
             cube(plateDimensions);
         
             for(key = keyGrid)
-                translate(key * keyUnit + [keyUnit, keyUnit] / 2)
+                translate([key[0], key[1]] * keyUnit + [keyUnit, keyUnit] / 2)
                     translate([0, 0, plateHoleDimensions[2] / 2])
-                        cube(v_mul(plateHoleDimensions, [1, 1, 2]), center = true);
+                        cube(v_mul(plateHoleDimensions, [key[2], key[3], 2]), center = true);
                         
             // standoff cutout
             for(translation = mountingHolesTranslations)
@@ -129,5 +129,5 @@ module plate()
 module pcbModel()
 {
         translate([wallStrength + pcbMargin, pcbDimensions[1] + wallStrength + pcbMargin, bottomStrength + pcbClearance])
-            import("HolyKeeb30.stl");
+            import("HolyKeys30.stl");
 }
