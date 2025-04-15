@@ -13,19 +13,22 @@ wallStrength = keyUnit / 8;
 wallHeight = keyUnit / 2;
 bottomStrength = keyUnit / 8;
 
-chocStabilizerBiggerRectDimensions = [6.30, 6.60] * 1.05;
-chocStabilizerSmallerRectDimensions = [3.20, 3.60] * 1.05;
+chocStabilizerBiggerRectDimensions = [6.30, 6.60] * 1.02;
+chocStabilizerSmallerRectDimensions = [3.20, 3.60] * 1.02;
 
 plateHoleDimensions = [13.95, 13.95];
 
 
-mountingHolesTranslations =
+extraMountingHolesOffset = (115.35 + keyUnit) / keyUnit;
+
+mountingHolesGrid =
 [
     [1, 1, 0],
     [5, 1, 0],
     [1, 4, 0],
-    [4, 1, 0], // delete me
-    [5, 4, 0]
+    [5, 4, 0],
+    [extraMountingHolesOffset, 1, 0],
+    [extraMountingHolesOffset, 4, 0],
 ] * keyUnit;
 
 
@@ -50,8 +53,8 @@ innerCutoutTranslation = [wallStrength, wallStrength, bottomStrength];
 wedgeAnle = 180 - 90 - angle;
 wedgeHeight = outerDimensions[1] / sin(wedgeAnle) * sin(angle);
 
-plateStrength = 1.65 * 0.8;
-plateClearance = 0.55;
+plateStrength = 1.65 * 0.76;
+plateClearance = 0.8;
 
 plateDimensions = [6 * keyUnit, 5 * keyUnit, plateStrength];
 plateTranslation = pcbTranslation + [0, 0, plateClearance + pcbDimensions[2]];
@@ -73,16 +76,10 @@ stabilizerGrid =  // [x, y, width, height] in units
 ];
 
 
-*case();
+case();
 
-intersection()
-{
-    color("red", 0.5)
+*color("red", 0.5)
         plate();
-
-    translate(plateTranslation + [3 * keyUnit, 0, - plateClearance])
-        cube([3 * keyUnit, 2 * keyUnit, outerDimensions[2]]);
-}
 
 *color("darkgreen", 0.3)
     pcbModel();
@@ -114,13 +111,13 @@ module case()
                         wedge([outerDimensions[0], outerDimensions[1], wedgeHeight]);
 
             // standoff
-            for(translation = mountingHolesTranslations)
+            for(translation = mountingHolesGrid)
                 translate(translation + v_mul(pcbTranslation, [1,1,0]))
                     cylinder(d = standoffDiameter, h = bottomStrength + pcbClearance);       
         }
 
         // standoff cutout
-        for(translation = mountingHolesTranslations)
+        for(translation = mountingHolesGrid)
             translate(translation + pcbTranslation + [0, 0, -standoffHoleHeight])
                 cylinder(d = standoffHoleDiameter, h = outerDimensions[2]);
             
@@ -145,7 +142,7 @@ module plate()
                 cube(plateDimensions);
             
                 // pcb clearance standoffs
-                for(translation = mountingHolesTranslations)
+                for(translation = mountingHolesGrid)
                     translate(translation)
                         translate([0, 0, -plateClearance])
                             cylinder(d = threadedInsertDimensions[2] * 2, h = plateClearance);
@@ -166,7 +163,7 @@ module plate()
                        
 
             // standoff cutout
-            for(translation = mountingHolesTranslations)
+            for(translation = mountingHolesGrid)
                 translate(translation)
                     translate([0, 0, -plateClearance])
                         cylinder(d = threadedInsertDimensions[2], h = outerDimensions[2]);
