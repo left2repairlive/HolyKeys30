@@ -4,7 +4,7 @@ $fn = 64;
 
 
 keyUnit = 19.05;
-keycapScale = 0.9;
+keycapScale = 0.95;
 keycapBotToTopScale = 0.95;
 keyHeight = 5;
 
@@ -12,14 +12,13 @@ wallThickness = 1.2;
 
 edgeRadius = 2;
 
-keyWidth = 1; // in units
+keyWidth = 3; // in units
 keyDepth = 1; // in units
 
-stemHeight = keyHeight - wallThickness;
-stabilizerDistance = 0;
+stabilizerDistance = keyUnit * 2; // in mm
 
-embossedText = "W";
-embossedTextDepth = wallThickness / 4;
+embossedText = "";
+embossedTextDepth = 0.2;
 embossedTextSize = 8;
 embossedTextFont = "Consolas:style=Bold";
 embossedTextSpacing = 1;
@@ -34,7 +33,7 @@ mxStem();
 
 module keycap()
 {
-    switchLowerFootprint = [keyWidth * keyUnit, keyDepth * keyUnit];
+    switchLowerFootprint = [keyWidth * keyUnit * keycapScale, keyDepth * keyUnit * keycapScale];
     switchUpperFootprint = switchLowerFootprint * keycapBotToTopScale;
 
     innerLowerFootprint = switchLowerFootprint - [wallThickness * 2, wallThickness * 2];
@@ -42,6 +41,8 @@ module keycap()
 
     innerHeight = keyHeight - wallThickness;
     
+    innerEdgeRadius = edgeRadius - wallThickness;
+
     stemHeight = innerHeight;
 
 
@@ -49,7 +50,7 @@ module keycap()
     {
         prismoid(size1 = switchLowerFootprint, size2 = switchUpperFootprint, rounding = edgeRadius, h = keyHeight);
 
-        prismoid(size1 = innerLowerFootprint, size2 = innerUpperFootprint, rounding = edgeRadius, h = innerHeight);
+        prismoid(size1 = innerLowerFootprint, size2 = innerUpperFootprint, rounding = innerEdgeRadius, h = innerHeight);
 
         translate([embossedTextOffset[0], embossedTextOffset[1], keyHeight - embossedTextDepth])
             linear_extrude(embossedTextDepth)
@@ -61,7 +62,9 @@ module mxStem()
 {
     // taken from: https://cdn.shopify.com/s/files/1/0657/6075/5954/files/SPEC-CPG135301D01_Kailh_Choc_V2_Low_Profile_Red_Switch.pdf?v=1666690444
     mxStemOuterDiamter = 5.5;
-    mxStemCutoutDimensions = [4.1, 1.3, mxStemOuterDiamter];
+    mxStemCutoutDimensions = [4.1, 1.3, mxStemOuterDiamter] * 1.06;
+
+    stemHeight = keyHeight - wallThickness;
 
     for(i = [-stabilizerDistance / 2, 0, stabilizerDistance / 2])
         translate([i, 0, 0])
