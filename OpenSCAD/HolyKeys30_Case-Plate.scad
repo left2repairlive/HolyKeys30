@@ -4,6 +4,7 @@ $fn = 64;
 
 
 keyUnit = 19.05;
+angle = 2;
 
 pcbMargin = keyUnit / 32;
 pcbClearance = keyUnit / 7;
@@ -12,26 +13,27 @@ wallStrength = keyUnit / 8;
 wallHeight = keyUnit / 2;
 bottomStrength = keyUnit / 8;
 
+chocStabilizerBiggerRectDimensions = [6.30, 6.60] * 1.05;
+chocStabilizerSmallerRectDimensions = [3.20, 3.60] * 1.05;
+
+plateHoleDimensions = [13.95, 13.95];
+
+
 mountingHolesTranslations =
 [
     [1, 1, 0],
     [5, 1, 0],
     [1, 4, 0],
+    [4, 1, 0], // delete me
     [5, 4, 0]
-];
+] * keyUnit;
 
-keyGrid = // [x, y, width, height] in units
-[
-    [0,1,1,1], [1,1,1,1], [2,1,1, 1], [3,1,1,1], [4,1,1,1], [5,1,1,1],
-    [0,2,1,1], [1,2,1,1], [2,2,1, 1], [3,2,1,1], [4,2,1,1], [5,2,1,1],
-    [0,0,1,1], [1,0,1,1], [2,0,1, 1], [3,0,1,1], [4,0,1,1], [5,0,1,1],
-    [0,3,1,1], [1,3,1,1], [2,3,1, 1], [3,3,1,1], [4,3,1,1], [5,3,1,1],
-    [0,4,1,1], [1,4,1,1], [2,4,1, 1], [3,4,0.5,1], [4,4,1,1], [5,4,0.5,1]
-];
 
-screwDiameter = 2.2;
-screwRingDiameter = 1.9 * 2;
+threadedInsertDimensions = [3.2, 5, 2.2];
 
+standoffHoleDiameter = threadedInsertDimensions[0];
+standoffHoleHeight = threadedInsertDimensions[1];
+standoffDiameter = standoffHoleDiameter * 2;
 
 pcbDimensions = [7.25 * keyUnit, 5 * keyUnit, 1.6];
 pcbTranslation = [wallStrength + pcbMargin, wallStrength + pcbMargin, bottomStrength + pcbClearance];
@@ -45,22 +47,44 @@ outerDimensions = [pcbDimensions[0] + (wallStrength + pcbMargin) * 2, pcbDimensi
 innerCutoutDimensions = pcbDimensions + [pcbMargin * 2, pcbMargin * 2, wallHeight * 2];
 innerCutoutTranslation = [wallStrength, wallStrength, bottomStrength];
 
+wedgeAnle = 180 - 90 - angle;
+wedgeHeight = outerDimensions[1] / sin(wedgeAnle) * sin(angle);
 
-plateStrength = 1.65;
+plateStrength = 1.65 * 0.8;
 plateClearance = 0.55;
 
 plateDimensions = [6 * keyUnit, 5 * keyUnit, plateStrength];
 plateTranslation = pcbTranslation + [0, 0, plateClearance + pcbDimensions[2]];
 
-plateHoleDimensions = [13.95, 13.95, plateStrength];
+
+keyGrid = // [x, y, width, height] in units
+[
+    [0,0,1,1], [1,0,1,1], [2,0,1,1], [4,0,1,1], 
+    [0,1,1,1], [1,1,1,1], [2,1,1,1], [3,1,1,1], [4,1,1,1], [5,1,1,1],
+    [0,2,1,1], [1,2,1,1], [2,2,1,1], [3,2,1,1], [4,2,1,1], [5,2,1,1],
+    [0,3,1,1], [1,3,1,1], [2,3,1,1], [3,3,1,1], [4,3,1,1], [5,3,1,1],
+    [0,4,1,1], [1,4,1,1], [2,4,1,1], [3,4,1,1], [4,4,1,1], [5,4,1,1],
+];
+
+stabilizerGrid =  // [x, y, width, height] in units
+[
+    [3, 0],
+    [5, 0]
+];
 
 
-case();
+*case();
 
-color("red", 0.5)
-    plate();
+intersection()
+{
+    color("red", 0.5)
+        plate();
 
-color("darkgreen", 0.3)
+    translate(plateTranslation + [3 * keyUnit, 0, - plateClearance])
+        cube([3 * keyUnit, 2 * keyUnit, outerDimensions[2]]);
+}
+
+*color("darkgreen", 0.3)
     pcbModel();
 
 
@@ -83,17 +107,22 @@ module case()
 
             }
 
+            // case wedge
+            translate(v_mul(outerDimensions, [1,1,0]))
+                rotate([0, 0, 180])
+                    mirror([0, 0, 1])
+                        wedge([outerDimensions[0], outerDimensions[1], wedgeHeight]);
+
             // standoff
             for(translation = mountingHolesTranslations)
-                translate(translation * keyUnit + v_mul(pcbTranslation, [1,1,0]))
-                    cylinder(d = screwRingDiameter, h = bottomStrength + pcbClearance);       
+                translate(translation + v_mul(pcbTranslation, [1,1,0]))
+                    cylinder(d = standoffDiameter, h = bottomStrength + pcbClearance);       
         }
 
         // standoff cutout
         for(translation = mountingHolesTranslations)
-            translate(translation * keyUnit + v_mul(pcbTranslation, [1,1,0]))
-                translate([0, 0, -0.01])
-                    cylinder(d = screwDiameter, h = outerDimensions[2]);
+            translate(translation + pcbTranslation + [0, 0, -standoffHoleHeight])
+                cylinder(d = standoffHoleDiameter, h = outerDimensions[2]);
             
     }
 
@@ -109,25 +138,55 @@ module plate()
 {
     translate(plateTranslation)
         difference()
-        {    
-            cube(plateDimensions);
-        
-            for(key = keyGrid)
-                translate([key[0], key[1]] * keyUnit + [keyUnit, keyUnit] / 2)
-                    translate([0, 0, plateHoleDimensions[2] / 2])
-                        cube(v_mul(plateHoleDimensions, [key[2], key[3], 2]), center = true);
+        {   
+            union()
+            {
+                // plate
+                cube(plateDimensions);
+            
+                // pcb clearance standoffs
+                for(translation = mountingHolesTranslations)
+                    translate(translation)
+                        translate([0, 0, -plateClearance])
+                            cylinder(d = threadedInsertDimensions[2] * 2, h = plateClearance);
+            }
+
+            // key cutouts
+            translate([keyUnit, keyUnit] / 2)
+                for(key = keyGrid)
+                    translate([key[0] * keyUnit, key[1] * keyUnit, plateStrength / 2])
+                        cube([key[2] * plateHoleDimensions[0], key[3] * plateHoleDimensions[0], plateStrength * 2], center = true);
                         
+            // stabilizer cutouts
+            translate([keyUnit, keyUnit] / 2)
+                for(stabilizer = stabilizerGrid)
+                    translate([stabilizer[0] * keyUnit, stabilizer[1] * keyUnit])
+                        linear_extrude(plateStrength)
+                            chocStabilizerCutout();
+                       
+
             // standoff cutout
             for(translation = mountingHolesTranslations)
-                translate(translation * keyUnit)
-                    translate([0, 0, -0.01])
-                        cylinder(d = screwDiameter, h = outerDimensions[2]);
+                translate(translation)
+                    translate([0, 0, -plateClearance])
+                        cylinder(d = threadedInsertDimensions[2], h = outerDimensions[2]);
         }
 }
+
+
+
+module chocStabilizerCutout()
+{
+    square([chocStabilizerBiggerRectDimensions[0], chocStabilizerBiggerRectDimensions[1]], center = true);
+    
+    translate([0, (chocStabilizerBiggerRectDimensions[1] + chocStabilizerSmallerRectDimensions[1]) / 2])
+        square([chocStabilizerSmallerRectDimensions[0], chocStabilizerSmallerRectDimensions[1]], center = true);
+}
+
 
 
 module pcbModel()
 {
         translate([wallStrength + pcbMargin, pcbDimensions[1] + wallStrength + pcbMargin, bottomStrength + pcbClearance])
-            import("HolyKeys30.stl");
+            import("export/HolyKeys30.stl");
 }
