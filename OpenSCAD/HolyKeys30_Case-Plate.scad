@@ -32,7 +32,7 @@ mountingHolesGrid =
 ] * keyUnit;
 
 
-threadedInsertDimensions = [3.2, 5, 2.2];
+threadedInsertDimensions = [3.2, 5, 2.5];
 
 standoffHoleDiameter = threadedInsertDimensions[0];
 standoffHoleHeight = threadedInsertDimensions[1];
